@@ -11,11 +11,15 @@ export type ErrorType =
 
 export type Strength = "weak" | "medium" | "strong";
 
-export type Result = {
-  isValid: boolean;
-  error?: ErrorType;
-  strength?: Strength;
-};
+export type Result =
+  | {
+      isValid: true;
+      strength: Strength;
+    }
+  | {
+      isValid: false;
+      error: ErrorType;
+    };
 
 export const isPasswordValid = (username: string, password: string): Result => {
   const weakPassword = [
@@ -35,29 +39,31 @@ export const isPasswordValid = (username: string, password: string): Result => {
     "harley",
     "fuckme",
   ];
-  let error: ErrorType | undefined;
-  if (password.length < 8) error = "invalidLength";
-  else if (!/[a-z]/.test(password)) error = "noLowerCase";
-  else if (!/[A-Z]/.test(password)) error = "noUpperCase";
-  else if (!/[0-9]/.test(password)) error = "noNumber";
-  else if (!/[@#$%^&+=!]/.test(password)) error = "noSpecialCharacter";
-  else if (/ /.test(password)) error = "hasSpace";
-  else if (/(.)\1\1/.test(password)) error = "hasRepeatingCharacters";
-  else if (/(.)\1\1/.test(password)) error = "hasRepeatingCharacters";
-  else if (password.length > 20) error = "invalidLength";
-  else if (password.toLowerCase().includes(username.toLowerCase()))
-    error = "containsUsername";
-  else if (
-    weakPassword.includes(password.replace(/[^a-zA-Z]/g, "").toLowerCase())
-  )
-    error = "weakPassword";
 
-  const strength: Strength =
-    error === null || password.length < 10
-      ? "weak"
-      : password.length < 14
-      ? "medium"
-      : "strong";
+  if (password.length < 8) return { isValid: false, error: "invalidLength" };
+  if (!/[a-z]/.test(password)) return { isValid: false, error: "noLowerCase" };
+  if (!/[A-Z]/.test(password)) return { isValid: false, error: "noUpperCase" };
+  if (!/[0-9]/.test(password)) return { isValid: false, error: "noNumber" };
+  if (!/[@#$%^&+=!]/.test(password))
+    return { isValid: false, error: "noSpecialCharacter" };
+  if (/ /.test(password)) return { isValid: false, error: "hasSpace" };
+  if (/(.)\1\1/.test(password))
+    return { isValid: false, error: "hasRepeatingCharacters" };
+  if (/(.)\1\1/.test(password))
+    return { isValid: false, error: "hasRepeatingCharacters" };
+  if (password.length > 20) return { isValid: false, error: "invalidLength" };
+  if (password.toLowerCase().includes(username.toLowerCase()))
+    return { isValid: false, error: "containsUsername" };
+  if (weakPassword.includes(password.replace(/[^a-zA-Z]/g, "").toLowerCase()))
+    return { isValid: false, error: "weakPassword" };
 
-  return { isValid: error !== null, error, strength };
+  return {
+    isValid: true,
+    strength:
+      password.length < 10
+        ? "weak"
+        : password.length < 14
+        ? "medium"
+        : "strong",
+  };
 };
