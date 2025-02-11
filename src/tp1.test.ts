@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ErrorType, Result, Strength, isPasswordValid } from "../src";
+import { ErrorType, Result, Strength, isPasswordValid } from "./tp1";
 
 describe("PasswordValidator", () => {
   it("should contain at least 8 characters", () => {
