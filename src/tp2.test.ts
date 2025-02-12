@@ -65,4 +65,14 @@ describe("BowlingConversion", () => {
     const result = getScore([10, 3, 4], 2);
     expect(result).toBe(24);
   });
+
+  it("Game with too many rolls (3 on final frame)", () => {
+    // const result = getScore([10, 4, 6, 4], 2);
+    expect(() => getScore([10, 4, 4, 4], 2)).toThrow();
+  });
+
+  it("Game with too many rolls (4 on final frame)", () => {
+    // const result = getScore([10, 4, 6, 4], 2);
+    expect(() => getScore([10, 5, 5, 5, 5], 2)).toThrow();
+  });
 });
