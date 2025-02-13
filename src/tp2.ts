@@ -23,27 +23,21 @@ export function getScore(rolls: number[], framesNumber: number): number {
       throw new DOMException("Too many rolls for the number of frames");
     }
 
+    const sumWithPrevious = (previousScore ?? 0) + roundScore;
+    const isSecondThrow = isLastFrame
+      ? false /** @warning doesn't handle throw errors in last frame */
+      : rollNumber === 2;
+
+    if (isSecondThrow && sumWithPrevious > 10) {
+      throw new DOMException(
+        "Too many points in a frame. Frame score: " + sumWithPrevious
+      );
+    }
+
     score += roundScore;
 
     const isStrike = roundScore === 10;
-    const isSpare = rollNumber === 2 && previousScore! + roundScore === 10;
-
-    console.log(
-      "roundScore : ",
-      roundScore,
-      "previousScore : ",
-      previousScore,
-      "isLastFrame : ",
-      isLastFrame,
-      " frame : ",
-      frame,
-      " isStrike : ",
-      isStrike,
-      " isSpare : ",
-      isSpare,
-      " rollNumber : ",
-      rollNumber
-    );
+    const isSpare = rollNumber === 2 && sumWithPrevious === 10;
 
     // Giving bonus
     if (!isLastFrame && (isStrike || isSpare)) {
@@ -54,18 +48,14 @@ export function getScore(rolls: number[], framesNumber: number): number {
       }
     }
 
-    const isLastRoll = isLastFrame
+    const isLastFrameRoll = isLastFrame
       ? (rollNumber === 2 && !isSpare && !isStrike) || rollNumber === 3
       : rollNumber === 2 || isStrike;
-    if (isLastRoll) {
+    if (isLastFrameRoll) {
       rollNumber = 0;
       frame++;
     }
     previousScore = roundScore;
   }
-
   return score;
 }
-
-// const result = getScore([10, 4, 4, 4], 2);
-// console.log(result);
