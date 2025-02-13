@@ -1,32 +1,36 @@
 /* -------------------------------------------------------------------------- */
 /*                                   BOWLING                                  */
 /* -------------------------------------------------------------------------- */
+
+function tail(rolls: number[], n = 0): number | null {
+  return rolls[rolls.length - 1 - n];
+}
+
 /**
  *
  * @warning doesn't handle the case where rolls are unsufficient for the number of frames
  */
 export function getScore(rolls: number[], framesNumber: number): number {
   let score = 0;
-  let frame = 1;
-  let previousScore: number | null = null;
-  let rollNumber = 0;
+  let frameNumber = 1;
+  let frame = [];
   while (true) {
     const roundScore = rolls.shift();
-    const isLastFrame = frame === framesNumber;
-    rollNumber++;
-
     if (roundScore === undefined) {
       break;
     }
+    frame.push(roundScore);
 
-    if (frame > framesNumber) {
+    if (frameNumber > framesNumber) {
       throw new DOMException("Too many rolls for the number of frames");
     }
 
-    const sumWithPrevious = (previousScore ?? 0) + roundScore;
+    const previousRoll = tail(frame, 1);
+    const sumWithPrevious = (previousRoll ?? 0) + roundScore;
+    const isLastFrame = frameNumber === framesNumber;
     const isSecondThrow = isLastFrame
       ? false /** @warning doesn't handle throw errors in last frame */
-      : rollNumber === 2;
+      : frame.length === 2;
 
     if (isSecondThrow && sumWithPrevious > 10) {
       throw new DOMException(
@@ -37,7 +41,7 @@ export function getScore(rolls: number[], framesNumber: number): number {
     score += roundScore;
 
     const isStrike = roundScore === 10;
-    const isSpare = rollNumber === 2 && sumWithPrevious === 10;
+    const isSpare = frame.length === 2 && sumWithPrevious === 10;
 
     // Giving bonus
     if (!isLastFrame && (isStrike || isSpare)) {
@@ -49,13 +53,26 @@ export function getScore(rolls: number[], framesNumber: number): number {
     }
 
     const isLastFrameRoll = isLastFrame
-      ? (rollNumber === 2 && !isSpare && !isStrike) || rollNumber === 3
-      : rollNumber === 2 || isStrike;
+      ? (frame.length === 2 && !isSpare && !isStrike) || frame.length === 3
+      : frame.length === 2 || isStrike;
     if (isLastFrameRoll) {
-      rollNumber = 0;
-      frame++;
+      frame = [];
+      frameNumber++;
     }
-    previousScore = roundScore;
   }
   return score;
 }
+
+// const result = getScore([10, 4, 4, 4], 2);
+// console.log(result);
+
+const ab = [8];
+const a = [8, 1];
+const b = [7, 1, 2];
+
+console.log(tail(b, 0));
+console.log(tail(b, 1));
+
+console.log(tail(a, 0));
+console.log(tail(a, 1));
+console.log(tail(a, 2));
