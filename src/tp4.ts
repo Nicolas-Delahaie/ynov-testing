@@ -16,18 +16,19 @@ export function wordleLine(mysteryWord: string, proposition: string): Reponse {
     throw new Error("Words lengths should be 5");
   }
 
+  mysteryWord = mysteryWord.toLowerCase();
+  proposition = proposition.toLowerCase();
+
   const response: Reponse = Array(5);
   for (let i = 0; i < mysteryWord.length; i++) {
-    const mysteryLetter = mysteryWord[i].toLowerCase();
-    const propositionLetter = proposition[i].toLowerCase();
+    const mysteryLetter = mysteryWord[i];
+    const propositionLetter = proposition[i];
 
     const isValidLetter = mysteryLetter === propositionLetter;
-    const containsThisLetter = () =>
-      mysteryWord.toLowerCase().includes(propositionLetter);
 
     response[i] = isValidLetter
       ? Color.green
-      : containsThisLetter()
+      : mysteryWord.includes(propositionLetter)
       ? Color.yellow
       : Color.grey;
   }
