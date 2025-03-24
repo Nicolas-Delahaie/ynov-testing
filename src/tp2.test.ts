@@ -77,4 +77,33 @@ describe("BowlingConversion", () => {
   it("Invalid second throw score", () => {
     expect(() => getScore([7, 6, 10, 10, 10], 2)).toThrow();
   });
+
+  // it("Invalid second throw score on last frame (unhandled)", () => {
+  //   const result = getScore([5, 10, 5], 1);
+  //   expect(result).toBe(20);
+  // });
+
+  // it("Invalid third throw score on last frame (unhandled)", () => {
+  //   const result = getScore([10, 5, 10], 1);
+  //   expect(result).toBe(25);
+  // });
+
+  it("Strike on 1st of last frame", () => {
+    const result = getScore([10, 5, 5], 1);
+    expect(result).toBe(20);
+  });
+
+  // normal game (mixed)
+
+  // strikes followed by numbers
+
+  // strike followed by numbers
+
+  // spare followed by numbers
+
+  // 2 consecutive strikes
+
+  // strike at the end followed by strike
+
+  // strike at the end folled by spare
 });
