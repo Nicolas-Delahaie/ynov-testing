@@ -21,8 +21,15 @@ export function wordleLine(mysteryWord: string, proposition: string): Reponse {
     const mysteryLetter = mysteryWord[i].toLowerCase();
     const propositionLetter = proposition[i].toLowerCase();
 
-    response[i] =
-      mysteryLetter === propositionLetter ? Color.green : Color.grey;
+    const isValidLetter = mysteryLetter === propositionLetter;
+    const containsThisLetter = () =>
+      mysteryWord.toLowerCase().includes(propositionLetter);
+
+    response[i] = isValidLetter
+      ? Color.green
+      : containsThisLetter()
+      ? Color.yellow
+      : Color.grey;
   }
 
   return response;
