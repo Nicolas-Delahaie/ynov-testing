@@ -14,7 +14,7 @@ describe("Line validation", () => {
     expect(result).toEqual(expected);
   });
 
-  it("Partially corect line", () => {
+  it("Partial match line", () => {
     const result = wordleLine("ETHOS", "ETHAL");
     const expected: Reponse = [
       Color.green,
@@ -38,8 +38,9 @@ describe("Line validation", () => {
     expect(result).toEqual(expected);
   });
 
-  it("Different case (proposition in uppercase)", () => {
-    const result = wordleLine("ETHOS", "ethos");
+  it("Case-insensitive matching", () => {
+    const result1 = wordleLine("ETHOS", "ethos");
+    const result2 = wordleLine("ethos", "ETHOS");
     const expected: Reponse = [
       Color.green,
       Color.green,
@@ -47,36 +48,121 @@ describe("Line validation", () => {
       Color.green,
       Color.green,
     ];
-    expect(result).toEqual(expected);
+    expect(result1).toEqual(expected);
+    expect(result2).toEqual(expected);
   });
 
-  it("Different case (mysteryWord in uppercase)", () => {
-    const result = wordleLine("ethos", "ETHOS");
-    const expected: Reponse = [
-      Color.green,
-      Color.green,
-      Color.green,
-      Color.green,
-      Color.green,
-    ];
-    expect(result).toEqual(expected);
-  });
-
-  it("Invalid proposition length", () => {
+  it("Throws if proposition length is not 5", () => {
     const execution = () => wordleLine("ATHOS", "");
     expect(execution).toThrow();
   });
 
-  it("Invalid mystery word length", () => {
+  it("Throws if mystery word length is not 5", () => {
     const execution = () => wordleLine("ATOS", "ATHOS");
     expect(execution).toThrow();
   });
 
-  it("Invalid with 1 existing letter", () => {
+  it("One letter in common", () => {
     const result = wordleLine("APPLE", "LIGHT");
     const expected: Reponse = [
       Color.yellow,
       Color.grey,
+      Color.grey,
+      Color.grey,
+      Color.grey,
+    ];
+    expect(result).toEqual(expected);
+  });
+
+  it("Multiple letters in common", () => {
+    const result = wordleLine("PATES", "APPLE");
+    const expected: Reponse = [
+      Color.yellow,
+      Color.yellow,
+      Color.grey,
+      Color.grey,
+      Color.yellow,
+    ];
+    expect(result).toEqual(expected);
+  });
+
+  it("One partial match plus one correct at the end", () => {
+    const result = wordleLine("PZZZP", "TPTTP");
+    const expected: Reponse = [
+      Color.grey,
+      Color.yellow,
+      Color.grey,
+      Color.grey,
+      Color.green,
+    ];
+    expect(result).toEqual(expected);
+  });
+
+  it("One partial match at first index plus one correct at last index", () => {
+    const result = wordleLine("ZZZPP", "PPTTP");
+    const expected: Reponse = [
+      Color.yellow,
+      Color.grey,
+      Color.grey,
+      Color.grey,
+      Color.green,
+    ];
+    expect(result).toEqual(expected);
+  });
+
+  it("Four letters correct, last letter mismatch", () => {
+    const result = wordleLine("APPLE", "APPLY");
+    const expected: Reponse = [
+      Color.green,
+      Color.green,
+      Color.green,
+      Color.green,
+      Color.grey,
+    ];
+    expect(result).toEqual(expected);
+  });
+
+  it("One letter mismatch in the middle", () => {
+    const result = wordleLine("GRAPE", "GRACE");
+    const expected: Reponse = [
+      Color.green,
+      Color.green,
+      Color.green,
+      Color.grey,
+      Color.green,
+    ];
+    expect(result).toEqual(expected);
+  });
+
+  it("Multiple partial matches (GRAPE vs PEARL)", () => {
+    const result = wordleLine("GRAPE", "PEARL");
+    const expected: Reponse = [
+      Color.yellow,
+      Color.yellow,
+      Color.green,
+      Color.yellow,
+      Color.grey,
+    ];
+    expect(result).toEqual(expected);
+  });
+
+  it("Handles repeated letters (ALLEE vs ELITE)", () => {
+    const result = wordleLine("ALLEE", "ELITE");
+    const expected: Reponse = [
+      Color.yellow,
+      Color.green,
+      Color.grey,
+      Color.grey,
+      Color.green,
+    ];
+    expect(result).toEqual(expected);
+  });
+
+  it("One correct plus partial repeated letter (PIANO vs PAPAS)", () => {
+    const result = wordleLine("PIANO", "PAPAS");
+    const expected: Reponse = [
+      Color.green,
+      Color.yellow,
       Color.grey,
       Color.grey,
       Color.grey,

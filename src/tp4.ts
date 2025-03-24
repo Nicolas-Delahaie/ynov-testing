@@ -1,17 +1,17 @@
+const WORDS_LENGTH = 5;
 export enum Color {
-  grey,
-  yellow,
-  green,
+  grey = "⚪️",
+  yellow = "🟡",
+  green = "🟢",
 }
-
 export type Reponse = Color[];
 
 export function wordleLine(mysteryWord: string, proposition: string): Reponse {
   if (
     !mysteryWord.length ||
     !proposition.length ||
-    mysteryWord.length !== 5 ||
-    proposition.length !== 5
+    mysteryWord.length !== WORDS_LENGTH ||
+    proposition.length !== WORDS_LENGTH
   ) {
     throw new Error("Words lengths should be 5");
   }
@@ -19,18 +19,41 @@ export function wordleLine(mysteryWord: string, proposition: string): Reponse {
   mysteryWord = mysteryWord.toLowerCase();
   proposition = proposition.toLowerCase();
 
-  const response: Reponse = Array(5);
-  for (let i = 0; i < mysteryWord.length; i++) {
+  const uniqueLetters = new Set(mysteryWord);
+  const lettersPool: Record<string, number> = {};
+  for (const letter of uniqueLetters) {
+    const charCounter = mysteryWord.split(letter).length - 1;
+    lettersPool[letter] = charCounter;
+  }
+
+  const response: Reponse = Array(WORDS_LENGTH).fill(Color.grey);
+
+  // Removing green letters from the pool
+  for (let i = 0; i < WORDS_LENGTH; i++) {
     const mysteryLetter = mysteryWord[i];
     const propositionLetter = proposition[i];
+    if (mysteryLetter === propositionLetter) {
+      response[i] = Color.green;
+      lettersPool[propositionLetter]--;
+      console.log(propositionLetter + " matches " + mysteryLetter);
+    }
+  }
 
-    const isValidLetter = mysteryLetter === propositionLetter;
+  // Putting remaining is yellow
+  for (let i = 0; i < WORDS_LENGTH; i++) {
+    if (response[i] === Color.green) {
+      continue;
+    }
 
-    response[i] = isValidLetter
-      ? Color.green
-      : mysteryWord.includes(propositionLetter)
-      ? Color.yellow
-      : Color.grey;
+    const propositionLetter = proposition[i];
+    const letterIsRemaining =
+      lettersPool[propositionLetter] !== undefined &&
+      lettersPool[propositionLetter] > 0;
+
+    if (letterIsRemaining) {
+      response[i] = Color.yellow;
+      lettersPool[propositionLetter]--;
+    }
   }
 
   return response;
