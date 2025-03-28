@@ -38,6 +38,13 @@ describe("Line validation", () => {
     expect(result).toEqual(expected);
   });
 
+  it("Throws if proposition is other than letters", () => {
+    const containsNumber = () => wordleLine("MANGE", "1AAAA");
+    const containsSpecialChar = () => wordleLine("MANGE", "!AAAA");
+    expect(containsNumber).toThrow();
+    expect(containsSpecialChar).toThrow();
+  });
+
   it("Case-insensitive matching", () => {
     const result1 = wordleLine("ETHOS", "ethos");
     const result2 = wordleLine("ethos", "ETHOS");
