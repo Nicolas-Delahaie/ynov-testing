@@ -1,10 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { Color, Reponse, wordleLine } from "./tp4";
+import { Color, Wordle } from "./tp4";
 
 describe("Line validation", () => {
   it("Perfect line", () => {
-    const result = wordleLine("ETHOS", "ETHOS");
-    const expected: Reponse = [
+    const game = new Wordle("ETHOS");
+    const result = game.guess("ETHOS");
+    const expected = [
       Color.green,
       Color.green,
       Color.green,
@@ -15,8 +16,9 @@ describe("Line validation", () => {
   });
 
   it("Partial match line", () => {
-    const result = wordleLine("ETHOS", "ETHAL");
-    const expected: Reponse = [
+    const game = new Wordle("ETHOS");
+    const result = game.guess("ETHAL");
+    const expected = [
       Color.green,
       Color.green,
       Color.green,
@@ -27,8 +29,9 @@ describe("Line validation", () => {
   });
 
   it("No matching letter", () => {
-    const result = wordleLine("ETHOS", "VWXYZ");
-    const expected: Reponse = [
+    const game = new Wordle("ETHOS");
+    const result = game.guess("VWXYZ");
+    const expected = [
       Color.grey,
       Color.grey,
       Color.grey,
@@ -39,16 +42,18 @@ describe("Line validation", () => {
   });
 
   it("Throws if proposition is other than letters", () => {
-    const containsNumber = () => wordleLine("MANGE", "1AAAA");
-    const containsSpecialChar = () => wordleLine("MANGE", "!AAAA");
+    const containsNumber = () => new Wordle("MANGE").guess("1AAAA");
+    const containsSpecialChar = () => new Wordle("MANGE").guess("!AAAA");
     expect(containsNumber).toThrow();
     expect(containsSpecialChar).toThrow();
   });
 
   it("Case-insensitive matching", () => {
-    const result1 = wordleLine("ETHOS", "ethos");
-    const result2 = wordleLine("ethos", "ETHOS");
-    const expected: Reponse = [
+    const game1 = new Wordle("ETHOS");
+    const result1 = game1.guess("ethos");
+    const game2 = new Wordle("ethos");
+    const result2 = game2.guess("ETHOS");
+    const expected = [
       Color.green,
       Color.green,
       Color.green,
@@ -60,18 +65,19 @@ describe("Line validation", () => {
   });
 
   it("Throws if proposition length is not 5", () => {
-    const execution = () => wordleLine("ATHOS", "");
+    const execution = () => new Wordle("ATHOS").guess("");
     expect(execution).toThrow();
   });
 
   it("Throws if mystery word length is not 5", () => {
-    const execution = () => wordleLine("ATOS", "ATHOS");
+    const execution = () => new Wordle("ATOS").guess("ATHOS");
     expect(execution).toThrow();
   });
 
   it("One letter in common", () => {
-    const result = wordleLine("APPLE", "LIGHT");
-    const expected: Reponse = [
+    const game = new Wordle("APPLE");
+    const result = game.guess("LIGHT");
+    const expected = [
       Color.yellow,
       Color.grey,
       Color.grey,
@@ -82,8 +88,9 @@ describe("Line validation", () => {
   });
 
   it("Multiple letters in common", () => {
-    const result = wordleLine("PATES", "APPLE");
-    const expected: Reponse = [
+    const game = new Wordle("PATES");
+    const result = game.guess("APPLE");
+    const expected = [
       Color.yellow,
       Color.yellow,
       Color.grey,
@@ -94,8 +101,9 @@ describe("Line validation", () => {
   });
 
   it("One partial match plus one correct at the end", () => {
-    const result = wordleLine("PZZZP", "TPTTP");
-    const expected: Reponse = [
+    const game = new Wordle("PZZZP");
+    const result = game.guess("TPTTP");
+    const expected = [
       Color.grey,
       Color.yellow,
       Color.grey,
@@ -106,8 +114,9 @@ describe("Line validation", () => {
   });
 
   it("One partial match at first index plus one correct at last index", () => {
-    const result = wordleLine("ZZZPP", "PPTTP");
-    const expected: Reponse = [
+    const game = new Wordle("ZZZPP");
+    const result = game.guess("PPTTP");
+    const expected = [
       Color.yellow,
       Color.grey,
       Color.grey,
@@ -118,8 +127,9 @@ describe("Line validation", () => {
   });
 
   it("Four letters correct, last letter mismatch", () => {
-    const result = wordleLine("APPLE", "APPLY");
-    const expected: Reponse = [
+    const game = new Wordle("APPLE");
+    const result = game.guess("APPLY");
+    const expected = [
       Color.green,
       Color.green,
       Color.green,
@@ -130,8 +140,9 @@ describe("Line validation", () => {
   });
 
   it("One letter mismatch in the middle", () => {
-    const result = wordleLine("GRAPE", "GRACE");
-    const expected: Reponse = [
+    const game = new Wordle("GRAPE");
+    const result = game.guess("GRACE");
+    const expected = [
       Color.green,
       Color.green,
       Color.green,
@@ -142,8 +153,9 @@ describe("Line validation", () => {
   });
 
   it("Multiple partial matches (GRAPE vs PEARL)", () => {
-    const result = wordleLine("GRAPE", "PEARL");
-    const expected: Reponse = [
+    const game = new Wordle("GRAPE");
+    const result = game.guess("PEARL");
+    const expected = [
       Color.yellow,
       Color.yellow,
       Color.green,
@@ -154,8 +166,9 @@ describe("Line validation", () => {
   });
 
   it("Handles repeated letters (ALLEE vs ELITE)", () => {
-    const result = wordleLine("ALLEE", "ELITE");
-    const expected: Reponse = [
+    const game = new Wordle("ALLEE");
+    const result = game.guess("ELITE");
+    const expected = [
       Color.yellow,
       Color.green,
       Color.grey,
@@ -166,8 +179,9 @@ describe("Line validation", () => {
   });
 
   it("One correct plus partial repeated letter (PIANO vs PAPAS)", () => {
-    const result = wordleLine("PIANO", "PAPAS");
-    const expected: Reponse = [
+    const game = new Wordle("PIANO");
+    const result = game.guess("PAPAS");
+    const expected = [
       Color.green,
       Color.yellow,
       Color.grey,

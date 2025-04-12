@@ -4,7 +4,7 @@
 
 ## Utilisation
 
-Exécuter un script Typescript :
+Exécuter un script TypeScript :
 
 ```bash
 npx ts-node src/tp4.ts
