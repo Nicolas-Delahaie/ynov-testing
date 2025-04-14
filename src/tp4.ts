@@ -1,62 +1,69 @@
 import existingWords from "./datas/existingWords.json";
+
 const WORDS_LENGTH = 5;
+const MAX_ATTEMPTS = 6;
+
 export enum Color {
   grey = "⚪️",
   yellow = "🟡",
   green = "🟢",
 }
 
-const MAX_ATTEMPTS = 5;
 export class Wordle {
   private mysteryWord: string;
   private currentAttempt: number;
   private dictCheckEnabled: boolean;
+  private hasWon: boolean = false;
 
-  constructor(mysteryWord: string, dictCheckEnabled = true) {
+  /**
+   * Creates a game.
+   * @param mysteryWord If not provided, creates a random game.
+   * @param dictCheckEnabled Enables or not dictionnary check
+   */
+  constructor(mysteryWord?: string, dictCheckEnabled = true) {
     this.dictCheckEnabled = dictCheckEnabled;
-    this.assertValidWord(mysteryWord);
+    if (!mysteryWord) {
+      mysteryWord =
+        existingWords[Math.floor(Math.random() * existingWords.length)];
+    } else {
+      this.assertValidWord(mysteryWord);
+    }
     this.mysteryWord = mysteryWord.toUpperCase();
     this.currentAttempt = 0;
   }
 
-  private isGameOver() {
-    return this.currentAttempt > MAX_ATTEMPTS;
+  public isGameOver(): boolean {
+    return this.hasWon || this.currentAttempt >= MAX_ATTEMPTS;
+  }
+
+  public isGameWon(): boolean {
+    return this.hasWon;
+  }
+
+  public getMysteryWord(): string {
+    return this.mysteryWord;
   }
 
   private assertValidWord(word: string): void {
     if (!word.length || word.length !== WORDS_LENGTH) {
-      throw new Error("Words lengths should be 5");
-    }
-
-    if (this.dictCheckEnabled) {
-      const isInDictionary = existingWords.includes(word.toUpperCase());
-      if (isInDictionary === false) throw new Error("Words should exist");
+      throw new Error("Words must be exactly 5 letters");
     }
 
     if (/[^a-zA-Z]/.test(word)) {
       throw new Error("Words should only contain letters");
     }
+
+    if (this.dictCheckEnabled) {
+      const isInDictionary = existingWords.includes(word.toUpperCase());
+      if (!isInDictionary) throw new Error("Word " + word + " doesn't exist.");
+    }
   }
 
-  /**
-   * Makes a guess on the mystery word and returns a color-coded result.
-   *
-   * Prerequisite:
-   * - The player must have remaining attempts (i.e., the game must not be over).
-   *
-   * Rules:
-   * - The guessed word must have exactly 5 characters.
-   * - Each letter is compared to the mystery word:
-   *   - 🟢 Green: correct letter in the correct position.
-   *   - 🟡 Yellow: correct letter but in the wrong position.
-   *   - ⚪️ Grey: letter not in the word at all.
-   *
-   * @param proposition - The guessed word
-   * @returns An array of Colors indicating correctness per letter
-   * @throws Error if the game is over or the word lengths are invalid
-   */
   public guess(proposition: string): Color[] {
+    if (this.isGameOver()) throw new Error("No remaining attempts");
+
     this.assertValidWord(proposition);
+    this.currentAttempt++;
 
     const mysteryWord = this.mysteryWord.toLowerCase();
     proposition = proposition.toLowerCase();
@@ -64,35 +71,29 @@ export class Wordle {
     const uniqueLetters = new Set(mysteryWord);
     const lettersPool: Record<string, number> = {};
     for (const letter of uniqueLetters) {
-      const charCounter = mysteryWord.split(letter).length - 1;
-      lettersPool[letter] = charCounter;
+      lettersPool[letter] = mysteryWord.split(letter).length - 1;
     }
 
     const response: Color[] = Array(WORDS_LENGTH).fill(Color.grey);
 
     for (let i = 0; i < WORDS_LENGTH; i++) {
-      const mysteryLetter = mysteryWord[i];
-      const propositionLetter = proposition[i];
-      if (mysteryLetter === propositionLetter) {
+      if (mysteryWord[i] === proposition[i]) {
         response[i] = Color.green;
-        lettersPool[propositionLetter]--;
+        lettersPool[proposition[i]]--;
       }
     }
 
     for (let i = 0; i < WORDS_LENGTH; i++) {
-      if (response[i] === Color.green) {
-        continue;
-      }
-
-      const propositionLetter = proposition[i];
-      const letterIsRemaining =
-        lettersPool[propositionLetter] !== undefined &&
-        lettersPool[propositionLetter] > 0;
-
-      if (letterIsRemaining) {
+      if (response[i] === Color.green) continue;
+      const letter = proposition[i];
+      if (lettersPool[letter]) {
         response[i] = Color.yellow;
-        lettersPool[propositionLetter]--;
+        lettersPool[letter]--;
       }
+    }
+
+    if (response.every((c) => c === Color.green)) {
+      this.hasWon = true;
     }
 
     return response;
