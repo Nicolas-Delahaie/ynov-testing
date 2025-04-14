@@ -32,6 +32,10 @@ export class Wordle {
       const isInDictionary = existingWords.includes(word.toUpperCase());
       if (isInDictionary === false) throw new Error("Words should exist");
     }
+
+    if (/[^a-zA-Z]/.test(word)) {
+      throw new Error("Words should only contain letters");
+    }
   }
 
   /**

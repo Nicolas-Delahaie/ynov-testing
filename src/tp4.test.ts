@@ -43,7 +43,7 @@ describe("Line validation", () => {
 
   it("Throws if proposition is other than letters", () => {
     const containsNumber = () => new Wordle("MANGE", false).guess("1AAAA");
-    const containsSpecialChar = () => new Wordle("MANGE").guess("!AAAA");
+    const containsSpecialChar = () => new Wordle("MANGE", false).guess("!AAAA");
     expect(containsNumber).toThrow();
     expect(containsSpecialChar).toThrow();
   });
